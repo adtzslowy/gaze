@@ -37,7 +37,7 @@ website: https://www.typescriptlang.org/
 ![demo](.github/demo/demo3.png)
 ![demo](.github/demo/demo4.png)
 
-https://github.com/user-attachments/assets/e1dde194-b165-4e71-8f1a-2fdb17350c86
+https://github.com/user-attachments/assets/abfb44f8-0a98-4e83-bdbf-e0ddf284665a
 
 ---
 
