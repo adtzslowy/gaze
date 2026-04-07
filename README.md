@@ -1,6 +1,6 @@
 ![gaze-image](.github/gaze.png)
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/adtzslowy/gaze/build.yml?style=flat-square\&logo=github\&label=Build)
+![Latest Release](https://img.shields.io/github/v/release/adtzslowy/gaze)
 ![TypeScript](https://img.shields.io/badge/TypeScript-%23007ACC.svg?style=flat-square\&logo=typescript\&logoColor=white)
 
 ---
