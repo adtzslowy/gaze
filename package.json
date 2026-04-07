@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "Dashboard analisis code terinspirasi dari Triforce.nvim",
   "license": "MIT",
-  "author": "adtzslowy",
+  "author": {
+    "name": "adtzslowy",
+    "email": "aditzkun0987@gmail.com"
+  },
   "main": "dist/main.js",
   "scripts": {
     "build": "tsc && tsc -p tsconfig.web.json && mkdir -p dist/assets/fa/css dist/assets/fa/webfonts && cp src/index.html dist/ && cp src/preload.js dist/ && cp assets/app.css dist/assets/ && cp node_modules/@fortawesome/fontawesome-free/css/all.min.css dist/assets/fa/css/ && cp node_modules/@fortawesome/fontawesome-free/webfonts/* dist/assets/fa/webfonts/",
