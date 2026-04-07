@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+  default-src 'self';
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net;
+  img-src 'self' data:;
+  connect-src 'none';
+"
+    />
+    <title>Gaze — Local Code Analytics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/fa/css/all.min.css" />
+    <link rel="stylesheet" href="./assets/app.css" />
+    
+  </head>
+  <body>
+    <div class="bg-atmo"></div>
+    <div class="noise-ov"></div>
+    <div class="scanlines"></div>
+    <div class="tip" id="tooltip"></div>
+    <div class="z1">
+      <!-- ════════════════════════════════
+             WELCOME SCREEN — REDESIGNED
+        ════════════════════════════════ -->
+      <div id="welcomeScreen" class="screen active">
+        <div class="welcome-shell">
+          <!-- Left: brand + context -->
+          <div class="welcome-left">
+            <div class="logo-mark">
+              <div class="logo-icon"><i class="fas fa-terminal"></i></div>
+              <span class="logo-text">Gaze</span>
+            </div>
+
+            <h1 class="welcome-headline">
+              Analisis kode
+              <span class="accent-word">lokal kamu</span>
+              tanpa cloud.
+            </h1>
+
+            <p class="welcome-sub">
+              Visualisasi git history, distribusi bahasa, jam produktif, dan
+              pola commit — 100% di device kamu. Zero telemetry.
+            </p>
+
+            <div class="stat-strip">
+              <div class="stat-strip-item">
+                <div class="stat-strip-num">847K</div>
+                <div class="stat-strip-label">Lines analyzed</div>
+              </div>
+              <div class="stat-strip-item">
+                <div class="stat-strip-num">1.2K</div>
+                <div class="stat-strip-label">Hours tracked</div>
+              </div>
+              <div class="stat-strip-item">
+                <div class="stat-strip-num">3.8K</div>
+                <div class="stat-strip-label">Commits parsed</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: form -->
+          <div class="welcome-right">
+            <div id="modeBadge" class="mode-badge">
+              <span class="dot"></span>
+              <span>BROWSER MODE</span>
+            </div>
+
+            <div class="form-card">
+              <div class="form-section-label">Mulai analisis</div>
+
+              <div class="input-group">
+                <input
+                  type="text"
+                  id="pathInput"
+                  class="path-input"
+                  placeholder="/path/ke/repo-kamu"
+                  spellcheck="false"
+                />
+                <button
+                  id="pickFolderBtn"
+                  class="btn-secondary"
+                  title="Pilih folder"
+                  style="padding: 12px 16px"
+                >
+                  <i class="fas fa-folder-open"></i>
+                </button>
+              </div>
+
+              <div id="errorBox" class="error-box">
+                <i
+                  class="fas fa-exclamation-triangle"
+                  style="margin-right: 8px"
+                ></i>
+                <span id="errorMsg"></span>
+              </div>
+
+              <button
+                id="scanBtn"
+                class="btn-primary w-full mt-3"
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 8px;
+                "
+              >
+                <i class="fas fa-bolt"></i>
+                Mulai Analisis
+              </button>
+
+              <div class="feat-grid">
+                <div class="feat-chip">
+                  <i class="fas fa-code-branch"></i><span>Git History</span>
+                </div>
+                <div class="feat-chip">
+                  <i class="fas fa-folder-tree"></i><span>File Scanner</span>
+                </div>
+                <div class="feat-chip">
+                  <i class="fas fa-clock"></i><span>Waktu Coding</span>
+                </div>
+                <div class="feat-chip">
+                  <i class="fas fa-chart-pie"></i><span>Bahasa Kode</span>
+                </div>
+                <div class="feat-chip">
+                  <i class="fas fa-fire"></i><span>Streak Harian</span>
+                </div>
+                <div class="feat-chip">
+                  <i class="fas fa-tags"></i><span>Commit Types</span>
+                </div>
+              </div>
+            </div>
+
+            <p
+              class="mt-3 text-xs text-center"
+              style="color: var(--text-muted)"
+            >
+              Data hanya diproses secara lokal &mdash; tidak ada yang dikirim ke
+              server.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+             LOADING SCREEN — REDESIGNED
+        ════════════════════════════════ -->
+      <div id="loadingScreen" class="screen">
+        <div class="load-shell">
+          <div class="load-terminal">
+            <div class="term-titlebar">
+              <div class="term-dots">
+                <div class="term-dot red"></div>
+                <div class="term-dot yellow"></div>
+                <div class="term-dot green"></div>
+              </div>
+              <span class="term-title">gaze — analysis.sh</span>
+            </div>
+            <div class="term-body">
+              <div id="loadOutput" class="load-output"></div>
+              <div class="load-progress-row">
+                <div class="load-bar-track">
+                  <div class="load-bar-fill" id="loadBar"></div>
+                </div>
+                <span class="load-pct" id="loadPct">0%</span>
+              </div>
+              <div class="load-step" id="loadStep">Initializing...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+             DASHBOARD SCREEN — REDESIGNED
+        ════════════════════════════════ -->
+      <div id="dashboardScreen" class="screen">
+        <!-- Header -->
+        <header class="dash-header">
+          <div class="dash-header-inner">
+            <div class="dash-logo">
+              <div class="dash-logo-mark"><i class="fas fa-terminal"></i></div>
+              <div>
+                <div class="dash-logo-text">Gaze</div>
+                <div class="dash-logo-sub" id="headerRepo">—</div>
+              </div>
+            </div>
+            <div class="dash-actions">
+              <button id="rescanBtn" class="btn-secondary">
+                <i class="fas fa-rotate-right" style="margin-right: 6px"></i
+                >Rescan
+              </button>
+              <button id="changeRepoBtn" class="btn-secondary">
+                <i class="fas fa-folder-open" style="margin-right: 6px"></i
+                >Ganti Repo
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main class="dash-main">
+          <!-- ── Hero + Streak ── -->
+          <section class="hero-band fade-in" style="animation-delay: 0.05s">
+            <div>
+              <p class="hero-eyebrow">// analytics.result</p>
+              <h2 class="hero-title">
+                Repositori <span id="repoNameDisplay">—</span>
+              </h2>
+              <p class="hero-sub" id="summaryLine">—</p>
+            </div>
+            <div class="streak-card">
+              <span class="flame" style="font-size: 1.8rem">&#128293;</span>
+              <div>
+                <div class="streak-num" id="streakVal">0</div>
+                <div class="streak-label">hari streak</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ── Stat Row ── -->
+          <section class="stat-row fade-in" style="animation-delay: 0.1s">
+            <div class="stat-card c-green">
+              <div class="stat-card-top">
+                <div class="stat-icon2 green"><i class="fas fa-code"></i></div>
+                <span class="stat-badge green">LOC</span>
+              </div>
+              <div class="stat-val2" id="sLines">0</div>
+              <div class="stat-lbl2">Total Baris</div>
+            </div>
+            <div class="stat-card c-cyan">
+              <div class="stat-card-top">
+                <div class="stat-icon2 cyan"><i class="fas fa-file"></i></div>
+                <span class="stat-badge cyan">FILES</span>
+              </div>
+              <div class="stat-val2" id="sFiles">0</div>
+              <div class="stat-lbl2">File Kode</div>
+            </div>
+            <div class="stat-card c-orange">
+              <div class="stat-card-top">
+                <div class="stat-icon2 orange">
+                  <i class="fas fa-clock"></i>
+                </div>
+                <span class="stat-badge orange">EST</span>
+              </div>
+              <div class="stat-val2" id="sHours">0</div>
+              <div class="stat-lbl2">Jam Coding</div>
+            </div>
+            <div class="stat-card c-pink">
+              <div class="stat-card-top">
+                <div class="stat-icon2 pink">
+                  <i class="fas fa-code-commit"></i>
+                </div>
+                <span class="stat-badge pink">GIT</span>
+              </div>
+              <div class="stat-val2" id="sCommits">0</div>
+              <div class="stat-lbl2">Total Commit</div>
+            </div>
+          </section>
+
+          <!-- ── Activity + Language ── -->
+          <section class="content-grid fade-in" style="animation-delay: 0.18s">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">Aktivitas Coding</div>
+                  <div class="panel-sub">Baris kode ditambahkan per hari</div>
+                </div>
+                <div class="flex gap-1">
+                  <div class="tbtn active" data-cr="30">30D</div>
+                  <div class="tbtn" data-cr="90">90D</div>
+                  <div class="tbtn" data-cr="365">1Y</div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="panel-chart-canvas" style="height: 220px">
+                  <canvas id="actChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">Bahasa Pemrograman</div>
+                  <div class="panel-sub">Distribusi baris kode</div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="flex justify-center" style="height: 160px">
+                  <canvas id="langChart"></canvas>
+                </div>
+                <div class="lang-bar mt-3" id="langBar"></div>
+                <div class="mt-3 space-y-2" id="langLegend"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ── Heatmap + Top Files ── -->
+          <section class="content-grid fade-in" style="animation-delay: 0.26s">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">Heatmap Kontribusi</div>
+                  <div class="panel-sub">365 hari terakhir</div>
+                </div>
+                <div
+                  class="flex items-center gap-2"
+                  style="
+                    font-family: &quot;JetBrains Mono&quot;, monospace;
+                    font-size: 0.65rem;
+                    color: var(--text-muted);
+                  "
+                >
+                  <span>Sedikit</span>
+                  <div class="flex gap-1">
+                    <div
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 2px;
+                        background: #0f1923;
+                      "
+                    ></div>
+                    <div
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 2px;
+                        background: #0a3d2a;
+                      "
+                    ></div>
+                    <div
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 2px;
+                        background: #007a4d;
+                      "
+                    ></div>
+                    <div
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 2px;
+                        background: #00b36b;
+                      "
+                    ></div>
+                    <div
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 2px;
+                        background: #00e68a;
+                      "
+                    ></div>
+                  </div>
+                  <span>Banyak</span>
+                </div>
+              </div>
+              <div class="panel-body overflow-x-auto">
+                <div style="min-width: 680px">
+                  <div class="flex gap-1">
+                    <!-- Day labels -->
+                    <div
+                      class="flex flex-col"
+                      style="gap: 1px; margin-right: 4px"
+                    >
+                      <div class="hm-day-label">Sen</div>
+                      <div style="height: 12px"></div>
+                      <div class="hm-day-label">Rab</div>
+                      <div style="height: 12px"></div>
+                      <div class="hm-day-label">Jum</div>
+                      <div style="height: 12px"></div>
+                      <div class="hm-day-label">Min</div>
+                    </div>
+                    <div
+                      class="flex"
+                      style="gap: 2px; flex: 1"
+                      id="hmCells"
+                    ></div>
+                  </div>
+                  <div class="flex mt-1">
+                    <div style="width: 26px"></div>
+                    <div
+                      class="flex-1 relative"
+                      style="
+                        font-family: &quot;JetBrains Mono&quot;, monospace;
+                        font-size: 8px;
+                        color: var(--text-muted);
+                      "
+                      id="monthLabels"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">File Teraktif</div>
+                  <div class="panel-sub">Paling sering di-commit</div>
+                </div>
+              </div>
+              <div
+                class="panel-body"
+                style="padding-top: 8px; padding-bottom: 8px"
+              >
+                <div id="topFiles"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ── Hourly + Commit Types ── -->
+          <section class="content-grid fade-in" style="animation-delay: 0.32s">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">Pola Waktu Coding</div>
+                  <div class="panel-sub">Jam paling produktif dari commit</div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div style="height: 180px">
+                  <canvas id="hourChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">Tipe Commit</div>
+                  <div class="panel-sub">Conventional commits breakdown</div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div id="commitTypes"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ── Terminal Log ── -->
+          <section class="panel fade-in" style="animation-delay: 0.38s">
+            <div class="panel-head">
+              <div class="flex items-center gap-2">
+                <div class="term-dots">
+                  <div class="term-dot red"></div>
+                  <div class="term-dot yellow"></div>
+                  <div class="term-dot green"></div>
+                </div>
+                <span
+                  style="
+                    font-family: &quot;JetBrains Mono&quot;, monospace;
+                    font-size: 0.7rem;
+                    color: var(--text-muted);
+                    margin-left: 4px;
+                  "
+                  >git_log.recent</span
+                >
+              </div>
+              <div
+                style="
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                  font-size: 0.65rem;
+                  color: var(--text-muted);
+                "
+              >
+                <span style="color: var(--accent)">●</span> live
+              </div>
+            </div>
+            <div
+              class="panel-body"
+              style="
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                max-height: 200px;
+                overflow-y: auto;
+                padding-top: 12px;
+                padding-bottom: 12px;
+              "
+            >
+              <div id="termLog"></div>
+            </div>
+          </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-t py-5 mt-4" style="border-color: var(--border)">
+          <div
+            style="
+              max-width: 1400px;
+              margin: 0 auto;
+              padding: 0 24px;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            "
+          >
+            <span
+              style="
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                font-size: 0.65rem;
+                color: var(--text-muted);
+              "
+              >Gaze v1.0.0 — 100% lokal, zero telemetry.</span
+            >
+            <span
+              style="
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                font-size: 0.65rem;
+                color: var(--text-muted);
+              "
+            >
+              <span style="color: var(--accent)">git log</span> +
+              <span style="color: var(--cyan)">fs.scan</span>
+            </span>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+    <!-- <script>
+      console.log("Inline script loaded");
+      document.getElementById("scanBtn").addEventListener("click", () => {
+        console.log("Button clicked! (inline)");
+        alert("Click works!");
+      });
+    </script> -->
+    <script type="module" src="../dist/renderer.js"></script>
+  </body>
+</html>
