@@ -37,9 +37,6 @@ website: https://www.typescriptlang.org/
 ![demo](.github/demo/demo3.png)
 ![demo](.github/demo/demo4.png)
 
-### Video Demo
-![demo](.github/demo/vid_demo.mov)
-
 ---
 
 ## Installation
