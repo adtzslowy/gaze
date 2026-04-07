@@ -30,6 +30,12 @@ website: https://www.typescriptlang.org/
 
 ---
 
+### Notes
+
+Notes: it works if in your local project have a .git files
+
+---
+
 ## Demo
 
 ![demo](.github/demo/demo1.png)
