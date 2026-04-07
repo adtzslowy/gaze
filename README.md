@@ -32,6 +32,8 @@ website: https://www.typescriptlang.org/
 
 ## Installation
 
+The installation is needs npm (node package manager)
+
 ```
 git clone https://github.com/adtzslowy/gaze.git
 cd gaze
@@ -42,25 +44,60 @@ npm install
 
 ## Running Gaze
 
+This command is to running build and run the Gaze.
+
 ```
-npm run dev
+npm start
 ```
 
 ---
 
 ## Build
 
+You can build this project for your own operating system.
+
+* macOS
+* Windows
+* Linux
+
 ```
-npm run build
+npm run dist:mac
+npm run dist:win
+npm run dist:linux
+```
+
+And if you wanna build for all opearting system you can use this command.
+
+```
+npm run dist:all
 ```
 
 ---
 
 ## Project Structure
 
-```
-src/        source code  
-assets/     static files (images, etc)  
+```code
+gaze/
+├── .github/
+├── src/
+│   └── analytics.ts
+│   └── constants.ts
+│   └── git.ts
+│   └── index.html
+│   └── main.ts
+│   └── preload.js
+│   └── renderer.ts
+│   └── scanner.ts
+│   └── types.ts 
+├── assets/
+│   └── static files (images, etc)
+├── README.md
+├── LICENSE
+├── .gitignore
+├── package-lock.json
+├── package.json
+├── tsconfig.json
+├── tsconfig.web.json
 ```
 
 ---
@@ -70,29 +107,6 @@ assets/     static files (images, etc)
 * Keep the code simple and readable
 * Avoid unnecessary dependencies
 * Focus on performance and clarity
-
----
-
-## Testing
-
-Currently, testing can be done manually by running the development server:
-
-```
-npm run dev
-```
-
-(automated testing can be added in future releases)
-
----
-
-## Running with Node
-
-After building:
-
-```
-npm run build
-node dist/index.js
-```
 
 ---
 
