@@ -30,6 +30,18 @@ website: https://www.typescriptlang.org/
 
 ---
 
+## Demo
+
+![demo](.github/demo/demo1.png)
+![demo](.github/demo/demo2.png)
+![demo](.github/demo/demo3.png)
+![demo](.github/demo/demo4.png)
+
+### Video Demo
+![demo](.github/demo/vid_demo.mov)
+
+---
+
 ## Installation
 
 The installation is needs npm (node package manager)
