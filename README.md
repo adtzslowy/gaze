@@ -77,7 +77,7 @@ npm run dist:win
 npm run dist:linux
 ```
 
-And if you wanna build for all opearting system you can use this command.
+And if you wanna build for all operating system you can use this command.
 
 ```
 npm run dist:all
